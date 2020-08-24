@@ -1,0 +1,125 @@
+<html>
+  <head>
+    <link href="./c3-0.7.18/c3.css" rel="stylesheet" type="text/css">
+    <link href="./myStyle.css" rel="stylesheet" type="text/css">
+    <script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+    <script src="./c3-0.7.18/c3.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" charset="utf-8"></script>
+    <!-- <script src="./fresh3.js" defer></script> -->
+    <script src="./tempData.js" defer></script>
+    <script src="./plotChart.js" defer></script>
+  </head>
+  <script>
+    var selected_module_array = []
+    var filterlevel = 0
+    var filterlevel_value = ''
+    var module
+    chartType = 'bar'
+    var drillDownLevels = {}
+    var obj = []
+    drillDownLevels.chartId = obj
+    console.log('---------blank Array-----', drillDownLevels)
+    var breadCrumbMenuId = ''
+      $(document).ready(function(){
+          $("#module").change(function(){
+            module = this.value
+            var configurator = module
+            if(selected_module_array.length == 0 ||  jQuery.inArray( module, selected_module_array )== -1)
+            {
+                selected_module_array.push(module)
+                $uniqueId = Date.now();
+                var chartId = module+'_'+$uniqueId
+                configurator = {
+                    "level1" : filterlevel_value
+                }
+                var newModule = module+'<div class="module_'+$uniqueId+'"style="width:auto;height:30px;border:1px solid;padding:10px;position:relative;top:auto"><div id="options"><ul id="opt"><li>Date -Year (Fixed)-<select id='+module+'_level1_'+$uniqueId+' class="choice"><option value="Year">Year</option></select></li><li>Choice Level 2 (Optional)-<select id='+module+'_level2_'+$uniqueId+' class="choice" name="level2"><option vlaue="">Select</option><option vlaue="Quarters">Quarters</option><option vlaue="month">Month</option></select></li><li>Choice Level3<select id='+module+'_level3_'+$uniqueId+' class="choice"><option vlaue="">Select</option><option Value="Month">Month</option><option Value="Week">Week</option><option Value="Days">Days</option></select></li></ul></div></div>';
+                $("#newModule").css({"height":"250px", "border":"1px solid", "position":"relative", "margin-top":"10px","padding":"10px"});
+                $("#main").append(newModule).append('<div id='+chartId+'></div>');
+                filterlevel = 0
+                filterlevel_value = 'Year'
+            }
+            else
+            {
+                console.log("-----Array id Empty or Module is Already Present--")
+            }
+          });
+            var parentLevel1_value = 'Year'
+            var parentLevel2_value = ''
+            var choiceId =''
+            var choiceId_Value =''
+            var level = ''
+            var level1 = 'Year'
+            var level2 = ''
+            var level3 = ''
+          $(document).on('change',".choice", function(){
+                console.log("---------Choice Selected------")
+                choiceId = $(this).attr('id');  ///Got the Id of 
+                choiceId_Value = this.value
+                var arr = choiceId.split("_")
+                module = arr[0]
+                level = arr[1]
+                chartId = arr[0].concat("_",arr[2]) 
+                switch(level){
+                    case 'level1':
+                        console.log("----Level 1 --Year---", choiceId_Value );
+                        filterlevel = 1
+                        level1 = 'Year'
+                        parentLevel1_value = choiceId_Value
+                        console.log(chartId)
+                        console.log(module)
+                        console.log(filterlevel)
+                        console.log(choiceId_Value)
+                        break;
+                    
+                    case 'level2':
+                        console.log("----Level 2 --Month Queartes Weeks---", choiceId_Value);
+                        filterlevel = 2
+                        level2 = choiceId_Value
+                        parentLevel2_value = choiceId_Value
+                        console.log(chartId)
+                        console.log(filterlevel)
+                        console.log(module)
+                        console.log(parentLevel1_value)
+                        console.log(choiceId_Value)
+                        break;
+                    
+                    case 'level3':
+                        console.log("----Level 3 --dependents---", choiceId_Value);
+                        filterlevel = 'Year'
+                        level3 = choiceId_Value
+                        configurator = {
+                            "module" : module,
+                            "chartId" : chartId,
+                            "level1" : level1,
+                            "level2" : level2,
+                            "level3" : level3
+                        }
+                        drillDownLevels.chartId.push(configurator)
+                        console.log(chartId)
+                        console.log(module)
+                        console.log(parentLevel1_value)
+                        console.log(parentLevel2_value)
+                        console.log(choiceId_Value)
+                        console.log('---------Configurator level3----', configurator)
+                        console.log('---------DrillDownLevels----', drillDownLevels)
+                        console.log('----Level1Data----',level1Data[module][parentLevel1_value])
+                        plotChart1(chartId, chartType, module, level1Data[module][parentLevel1_value], filterlevel, configurator);
+                        break;
+                    default:
+                        console.log("----Level 1 --Year---", choiceId_Value );
+                    break;
+                }
+                
+          })
+      })
+  </script>
+  <body id="main">
+    Module-
+    <select id="module">
+        <option value="">Select</option>
+        <option value="Sale">Sale</option>
+        <option value="Expense">Expense</option>
+        <option value="Leads">Leads</option>
+    </select>
+  </body>
+</html>
